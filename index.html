@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <script src="https://cdn.jsdelivr.net/npm/@discord/embedded-app-sdk@1"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@discord/embedded-app-sdk@1.1.0/dist/index.global.js"></script>
   <meta charset="UTF-8" />
   <title>Tetris - Classic Edition</title>
   <style>
@@ -57,6 +57,7 @@
       border-radius: 4px;
       background: #050608;
       display: block;
+      outline: none;
     }
     .score-val {
       font-size: 18px;
@@ -273,7 +274,7 @@
 
     <!-- Main Board Area with Overlays -->
     <div class="board-container">
-      <canvas id="tetris" width="200" height="400"></canvas>
+      <canvas id="tetris" width="200" height="400" tabindex="0"></canvas>
 
       <!-- Start Menu Overlay -->
       <div id="startOverlay" class="overlay">
@@ -337,15 +338,20 @@
     </div>
   </div>
 
-// Initialize Discord SDK if running inside Discord Activity
-if (window.DiscordSDK) {
-    const discordSdk = new window.DiscordSDK.DiscordSDK();
-    discordSdk.ready().then(() => {
-        console.log("Discord SDK is ready");
-    });
-}
-
   <script>
+    // --- DISCORD SDK INITIALIZATION ---
+    window.addEventListener('DOMContentLoaded', async () => {
+      if (window.DiscordSDK) {
+        try {
+          const discordSdk = new window.DiscordSDK.DiscordSDK();
+          await discordSdk.ready();
+          console.log("Discord SDK is ready!");
+        } catch (err) {
+          console.warn("Not running inside Discord, skipping SDK setup.", err);
+        }
+      }
+    });
+
     const canvas = document.getElementById('tetris');
     const context = canvas.getContext('2d');
     context.scale(20, 20);
@@ -488,6 +494,8 @@ if (window.DiscordSDK) {
       
       updateUI();
       playerReset();
+
+      canvas.focus();
     }
 
     function showStartMenu() {
@@ -735,24 +743,26 @@ if (window.DiscordSDK) {
       document.getElementById('level').innerText = player.level;
     }
 
-window.addEventListener('click', () => {
-    window.focus();
-    const canvas = document.getElementById('gameCanvas');
-    if (canvas) canvas.focus();
-});
+    // --- FOCUS HANDLERS ---
+    window.addEventListener('click', () => {
+      window.focus();
+      canvas.focus();
+    });
 
-window.addEventListener('load', () => {
-    window.focus();
-    const canvas = document.getElementById('gameCanvas');
-    if (canvas) {
-        canvas.setAttribute('tabindex', '0');
-        canvas.focus();
-    }
-});
+    window.addEventListener('load', () => {
+      window.focus();
+      canvas.focus();
+    });
 
+    // --- KEYBOARD CONTROLS ---
     document.addEventListener('keydown', event => {
       // Prevent shortcut keys while entering initials
       if (document.activeElement === document.getElementById('playerNameInput')) return;
+
+      const keysToPrevent = ['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'Space'];
+      if (keysToPrevent.includes(event.code)) {
+        event.preventDefault();
+      }
 
       // Pause Key Controls (P or Escape)
       if (event.code === 'KeyP' || event.code === 'Escape') {
