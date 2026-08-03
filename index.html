@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+  <script src="https://cdn.jsdelivr.net/npm/@discord/embedded-app-sdk@1"></script>
   <meta charset="UTF-8" />
   <title>Tetris - Classic Edition</title>
   <style>
@@ -335,6 +336,14 @@
       </div>
     </div>
   </div>
+
+// Initialize Discord SDK if running inside Discord Activity
+if (window.DiscordSDK) {
+    const discordSdk = new window.DiscordSDK.DiscordSDK();
+    discordSdk.ready().then(() => {
+        console.log("Discord SDK is ready");
+    });
+}
 
   <script>
     const canvas = document.getElementById('tetris');
@@ -725,6 +734,12 @@
       document.getElementById('lines').innerText = player.lines;
       document.getElementById('level').innerText = player.level;
     }
+
+window.addEventListener('click', () => {
+    window.focus();
+    const canvas = document.getElementById('gameCanvas');
+    if (canvas) canvas.focus();
+});
 
 window.addEventListener('load', () => {
     window.focus();
