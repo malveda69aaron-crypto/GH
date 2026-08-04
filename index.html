@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <script src="https://unpkg.com/@discord/embedded-app-sdk"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@discord/embedded-app-sdk@1/dist/index.global.js"></script>
   <title>Tetris - Classic Edition</title>
   <style>
     * {
@@ -76,7 +76,6 @@
       line-height: 1.5;
     }
 
-    /* Pause Button */
     .btn-pause {
       background: #2a2e45;
       color: #00f0f0;
@@ -98,7 +97,6 @@
       border-color: #00f0f0;
     }
 
-    /* Overlays */
     .overlay {
       position: absolute;
       inset: 0;
@@ -240,8 +238,6 @@
   <h1>TETRIS</h1>
 
   <div class="game-layout">
-    
-    <!-- Left Panel -->
     <div class="side-panel">
       <div class="box">
         <h3>HOLD</h3>
@@ -265,11 +261,9 @@
       </button>
     </div>
 
-    <!-- Center Board Area -->
     <div class="board-container">
       <canvas id="tetris" width="200" height="400" tabindex="0"></canvas>
 
-      <!-- Start Menu -->
       <div id="startOverlay" class="overlay">
         <div class="logo-text">TETRIS</div>
         <button class="btn-play" onclick="startGame()">PLAY</button>
@@ -291,14 +285,12 @@
         </div>
       </div>
 
-      <!-- Pause Menu -->
       <div id="pauseOverlay" class="overlay">
         <h2>PAUSED</h2>
         <button class="btn-play" onclick="togglePause()">RESUME</button>
         <button class="btn-play btn-secondary" onclick="showStartMenu()">MAIN MENU</button>
       </div>
 
-      <!-- Game Over Menu -->
       <div id="gameOverOverlay" class="overlay">
         <h2>GAME OVER</h2>
         <p>Final Score: <span id="finalScore">0</span></p>
@@ -312,7 +304,6 @@
       </div>
     </div>
 
-    <!-- Right Panel -->
     <div class="side-panel">
       <div class="box">
         <h3>NEXT</h3>
@@ -331,16 +322,17 @@
   </div>
 
   <script>
-    // --- DISCORD SDK HANDSHAKE ---
     window.addEventListener('DOMContentLoaded', async () => {
-      if (window.DiscordSDK) {
+      if (typeof window.DiscordSDK !== 'undefined') {
         try {
           const discordSdk = new window.DiscordSDK.DiscordSDK();
           await discordSdk.ready();
-          console.log("Discord SDK Ready!");
-        } catch (e) {
-          console.error("SDK Error:", e);
+          console.log("Discord Embedded App SDK initialized!");
+        } catch (err) {
+          console.warn("Discord SDK handshake warning:", err);
         }
+      } else {
+        console.log("Running in standard browser mode.");
       }
     });
 
@@ -370,7 +362,7 @@
     const COLORS = [
       null,
       '#00f0f0', '#0000f0', '#f0a000',
-      '#f0f000', '#00f000', '#a000f0', '#f00000'
+      '#f0f000', '#00f0f0', '#a000f0', '#f00000'
     ];
 
     const LEVEL_SPEEDS = { 1: 1000, 5: 600, 10: 300, 20: 100, 25: 50 };
