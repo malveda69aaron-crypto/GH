@@ -1,10 +1,14 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <script src="https://cdn.jsdelivr.net/npm/@discord/embedded-app-sdk@1.1.0/dist/index.global.js"></script>
   <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <script src="https://unpkg.com/@discord/embedded-app-sdk"></script>
   <title>Tetris - Classic Edition</title>
   <style>
+    * {
+      box-sizing: border-box;
+    }
     body {
       background: #0f111a;
       color: #fff;
@@ -17,18 +21,17 @@
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     }
     h1 {
-      margin-bottom: 10px;
+      margin: 0 0 15px 0;
       letter-spacing: 2px;
     }
     .game-layout {
       display: flex;
       gap: 20px;
-      align-items: flex-start;
+      align-items: stretch;
       background: #181b29;
       padding: 20px;
       border-radius: 12px;
       box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-      position: relative;
     }
     .side-panel {
       display: flex;
@@ -51,11 +54,13 @@
     }
     .board-container {
       position: relative;
-    }
-    canvas#tetris {
+      width: 200px;
+      height: 400px;
+      background: #050608;
       border: 3px solid #2a2e45;
       border-radius: 4px;
-      background: #050608;
+    }
+    canvas#tetris {
       display: block;
       outline: none;
     }
@@ -71,14 +76,14 @@
       line-height: 1.5;
     }
 
-    /* Pause Button Styling */
+    /* Pause Button */
     .btn-pause {
       background: #2a2e45;
       color: #00f0f0;
       border: 2px solid #3d4363;
       border-radius: 8px;
       padding: 10px;
-      font-size: 20px;
+      font-size: 16px;
       font-weight: bold;
       cursor: pointer;
       transition: all 0.2s ease;
@@ -96,23 +101,19 @@
     /* Overlays */
     .overlay {
       position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
+      inset: 0;
       background: rgba(15, 17, 26, 0.95);
-      border-radius: 4px;
+      border-radius: 2px;
       display: flex;
       flex-direction: column;
       justify-content: center;
       align-items: center;
       z-index: 10;
-      box-sizing: border-box;
       padding: 15px;
     }
 
     .logo-text {
-      font-size: 28px;
+      font-size: 26px;
       font-weight: 900;
       letter-spacing: 4px;
       color: #00f0f0;
@@ -121,9 +122,9 @@
     }
 
     .btn-play {
-      width: 80%;
+      width: 85%;
       padding: 10px;
-      font-size: 16px;
+      font-size: 15px;
       font-weight: bold;
       background: #28a745;
       color: white;
@@ -146,7 +147,7 @@
     }
 
     .level-select-box {
-      width: 80%;
+      width: 85%;
       background: #2b2d31;
       border: 1px solid #4e5058;
       border-radius: 6px;
@@ -154,8 +155,8 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 15px;
-      font-size: 12px;
+      margin-bottom: 12px;
+      font-size: 11px;
       color: #aaa;
     }
     .level-select-box select {
@@ -163,7 +164,7 @@
       color: #fff;
       border: 1px solid #4e5058;
       border-radius: 4px;
-      padding: 4px;
+      padding: 3px;
       font-weight: bold;
       cursor: pointer;
     }
@@ -176,30 +177,26 @@
       padding: 8px;
     }
     .menu-scores h4 {
-      margin: 0 0 6px 0;
-      font-size: 11px;
+      margin: 0 0 4px 0;
+      font-size: 10px;
       color: #8f93a2;
       text-transform: uppercase;
       text-align: center;
     }
     .menu-scores ol {
       margin: 0;
-      padding-left: 20px;
-      font-size: 11px;
+      padding-left: 18px;
+      font-size: 10px;
       color: #ccc;
     }
-    .menu-scores li {
-      margin-bottom: 3px;
-    }
 
-    /* Game Over & Pause Overlays */
     #gameOverOverlay, #pauseOverlay {
       display: none;
     }
     #gameOverOverlay h2, #pauseOverlay h2 {
-      font-size: 26px;
+      font-size: 22px;
       color: #00f0f0;
-      margin: 0 0 15px 0;
+      margin: 0 0 10px 0;
       letter-spacing: 2px;
     }
     #gameOverOverlay h2 {
@@ -207,13 +204,13 @@
     }
     #gameOverOverlay p {
       margin: 0 0 10px 0;
-      font-size: 14px;
+      font-size: 13px;
     }
     .name-input-group {
       display: flex;
       gap: 6px;
       margin-bottom: 12px;
-      width: 80%;
+      width: 85%;
     }
     .name-input-group input {
       flex: 1;
@@ -232,12 +229,9 @@
       color: white;
       border: none;
       border-radius: 4px;
-      padding: 6px 12px;
+      padding: 6px 10px;
       font-weight: bold;
       cursor: pointer;
-    }
-    .name-input-group button:hover {
-      background: #4752c4;
     }
   </style>
 </head>
@@ -247,7 +241,7 @@
 
   <div class="game-layout">
     
-    <!-- Left Panel: Hold, Score, Level, Lines & Pause Button -->
+    <!-- Left Panel -->
     <div class="side-panel">
       <div class="box">
         <h3>HOLD</h3>
@@ -266,17 +260,16 @@
         <div id="lines" class="score-val">0</div>
       </div>
 
-      <!-- Pause Button (Lower Left) -->
       <button class="btn-pause" onclick="togglePause()" title="Pause Game (P)">
         ⏸ <span>pause</span>
       </button>
     </div>
 
-    <!-- Main Board Area with Overlays -->
+    <!-- Center Board Area -->
     <div class="board-container">
       <canvas id="tetris" width="200" height="400" tabindex="0"></canvas>
 
-      <!-- Start Menu Overlay -->
+      <!-- Start Menu -->
       <div id="startOverlay" class="overlay">
         <div class="logo-text">TETRIS</div>
         <button class="btn-play" onclick="startGame()">PLAY</button>
@@ -298,19 +291,18 @@
         </div>
       </div>
 
-      <!-- Pause Overlay -->
+      <!-- Pause Menu -->
       <div id="pauseOverlay" class="overlay">
         <h2>PAUSED</h2>
         <button class="btn-play" onclick="togglePause()">RESUME</button>
         <button class="btn-play btn-secondary" onclick="showStartMenu()">MAIN MENU</button>
       </div>
 
-      <!-- Game Over Overlay -->
+      <!-- Game Over Menu -->
       <div id="gameOverOverlay" class="overlay">
         <h2>GAME OVER</h2>
         <p>Final Score: <span id="finalScore">0</span></p>
 
-        <!-- Name Input Form -->
         <div id="saveScoreBox" class="name-input-group">
           <input type="text" id="playerNameInput" maxlength="3" placeholder="AAA" />
           <button onclick="submitScore()">SAVE</button>
@@ -320,7 +312,7 @@
       </div>
     </div>
 
-    <!-- Right Panel: Next & Controls -->
+    <!-- Right Panel -->
     <div class="side-panel">
       <div class="box">
         <h3>NEXT</h3>
@@ -339,19 +331,6 @@
   </div>
 
   <script>
-    // --- DISCORD SDK INITIALIZATION ---
-    window.addEventListener('DOMContentLoaded', async () => {
-      if (window.DiscordSDK) {
-        try {
-          const discordSdk = new window.DiscordSDK.DiscordSDK();
-          await discordSdk.ready();
-          console.log("Discord SDK is ready!");
-        } catch (err) {
-          console.warn("Not running inside Discord, skipping SDK setup.", err);
-        }
-      }
-    });
-
     const canvas = document.getElementById('tetris');
     const context = canvas.getContext('2d');
     context.scale(20, 20);
@@ -366,13 +345,13 @@
 
     const SHAPES = [
       [],
-      [[0,0,0,0],[1,1,1,1],[0,0,0,0],[0,0,0,0]], // I
-      [[2,0,0],[2,2,2],[0,0,0]],                // J
-      [[0,0,3],[3,3,3],[0,0,0]],                // L
-      [[4,4],[4,4]],                            // O
-      [[0,5,5],[5,5,0],[0,0,0]],                // S
-      [[0,6,0],[6,6,6],[0,0,0]],                // T
-      [[7,7,0],[0,7,7],[0,0,0]]                 // Z
+      [[0,0,0,0],[1,1,1,1],[0,0,0,0],[0,0,0,0]],
+      [[2,0,0],[2,2,2],[0,0,0]],
+      [[0,0,3],[3,3,3],[0,0,0]],
+      [[4,4],[4,4]],
+      [[0,5,5],[5,5,0],[0,0,0]],
+      [[0,6,0],[6,6,6],[0,0,0]],
+      [[7,7,0],[0,7,7],[0,0,0]]
     ];
 
     const COLORS = [
@@ -381,13 +360,7 @@
       '#f0f000', '#00f000', '#a000f0', '#f00000'
     ];
 
-    const LEVEL_SPEEDS = {
-      1: 1000,
-      5: 600,
-      10: 300,
-      20: 100,
-      25: 50
-    };
+    const LEVEL_SPEEDS = { 1: 1000, 5: 600, 10: 300, 20: 100, 25: 50 };
 
     function createMatrix(w, h) {
       const matrix = [];
@@ -416,21 +389,12 @@
     let dropInterval = 1000;
     let lastTime = 0;
 
-    // --- PAUSE FUNCTION ---
     function togglePause() {
       if (!gameRunning || isGameOver) return;
-
       isPaused = !isPaused;
-      const pauseOverlay = document.getElementById('pauseOverlay');
-
-      if (isPaused) {
-        pauseOverlay.style.display = 'flex';
-      } else {
-        pauseOverlay.style.display = 'none';
-      }
+      document.getElementById('pauseOverlay').style.display = isPaused ? 'flex' : 'none';
     }
 
-    // --- LEADERBOARD FUNCTIONS ---
     function getHighScores() {
       const scores = localStorage.getItem('tetris_high_scores_v2');
       return scores ? JSON.parse(scores) : [];
@@ -463,8 +427,7 @@
 
     function submitScore() {
       const input = document.getElementById('playerNameInput');
-      const name = input.value.trim() || 'AAA';
-      saveHighScore(name, player.score);
+      saveHighScore(input.value.trim() || 'AAA', player.score);
       document.getElementById('saveScoreBox').style.display = 'none';
     }
 
@@ -494,7 +457,6 @@
       
       updateUI();
       playerReset();
-
       canvas.focus();
     }
 
@@ -743,20 +705,7 @@
       document.getElementById('level').innerText = player.level;
     }
 
-    // --- FOCUS HANDLERS ---
-    window.addEventListener('click', () => {
-      window.focus();
-      canvas.focus();
-    });
-
-    window.addEventListener('load', () => {
-      window.focus();
-      canvas.focus();
-    });
-
-    // --- KEYBOARD CONTROLS ---
     document.addEventListener('keydown', event => {
-      // Prevent shortcut keys while entering initials
       if (document.activeElement === document.getElementById('playerNameInput')) return;
 
       const keysToPrevent = ['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'Space'];
@@ -764,7 +713,6 @@
         event.preventDefault();
       }
 
-      // Pause Key Controls (P or Escape)
       if (event.code === 'KeyP' || event.code === 'Escape') {
         togglePause();
         return;
