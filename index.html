@@ -331,6 +331,19 @@
   </div>
 
   <script>
+    // --- DISCORD SDK HANDSHAKE ---
+    window.addEventListener('DOMContentLoaded', async () => {
+      if (window.DiscordSDK) {
+        try {
+          const discordSdk = new window.DiscordSDK.DiscordSDK();
+          await discordSdk.ready();
+          console.log("Discord SDK Ready!");
+        } catch (e) {
+          console.error("SDK Error:", e);
+        }
+      }
+    });
+
     const canvas = document.getElementById('tetris');
     const context = canvas.getContext('2d');
     context.scale(20, 20);
