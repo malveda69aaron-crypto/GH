@@ -3,7 +3,6 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <script src="https://cdn.jsdelivr.net/npm/@discord/embedded-app-sdk@1/dist/index.global.js"></script>
   <title>Tetris - Classic Edition</title>
   <style>
     * {
@@ -256,7 +255,7 @@
         <div id="lines" class="score-val">0</div>
       </div>
 
-      <button class="btn-pause" onclick="togglePause()" title="Pause Game (P)">
+      <button id="btnPause" class="btn-pause" title="Pause Game (P)">
         ⏸ <span>pause</span>
       </button>
     </div>
@@ -266,7 +265,7 @@
 
       <div id="startOverlay" class="overlay">
         <div class="logo-text">TETRIS</div>
-        <button class="btn-play" onclick="startGame()">PLAY</button>
+        <button id="btnPlay" class="btn-play">PLAY</button>
 
         <div class="level-select-box">
           <span>LEVEL:</span>
@@ -287,8 +286,8 @@
 
       <div id="pauseOverlay" class="overlay">
         <h2>PAUSED</h2>
-        <button class="btn-play" onclick="togglePause()">RESUME</button>
-        <button class="btn-play btn-secondary" onclick="showStartMenu()">MAIN MENU</button>
+        <button id="btnResume" class="btn-play">RESUME</button>
+        <button id="btnMenuFromPause" class="btn-play btn-secondary">MAIN MENU</button>
       </div>
 
       <div id="gameOverOverlay" class="overlay">
@@ -297,10 +296,10 @@
 
         <div id="saveScoreBox" class="name-input-group">
           <input type="text" id="playerNameInput" maxlength="3" placeholder="AAA" />
-          <button onclick="submitScore()">SAVE</button>
+          <button id="btnSaveScore">SAVE</button>
         </div>
 
-        <button class="btn-play" onclick="showStartMenu()">MAIN MENU</button>
+        <button id="btnMenuFromGameOver" class="btn-play">MAIN MENU</button>
       </div>
     </div>
 
@@ -322,20 +321,6 @@
   </div>
 
   <script>
-    window.addEventListener('DOMContentLoaded', async () => {
-      if (typeof window.DiscordSDK !== 'undefined') {
-        try {
-          const discordSdk = new window.DiscordSDK.DiscordSDK();
-          await discordSdk.ready();
-          console.log("Discord Embedded App SDK initialized!");
-        } catch (err) {
-          console.warn("Discord SDK handshake warning:", err);
-        }
-      } else {
-        console.log("Running in standard browser mode.");
-      }
-    });
-
     const canvas = document.getElementById('tetris');
     const context = canvas.getContext('2d');
     context.scale(20, 20);
@@ -709,6 +694,14 @@
       document.getElementById('lines').innerText = player.lines;
       document.getElementById('level').innerText = player.level;
     }
+
+    // Attach event listeners directly (fixes CSP inline handler errors)
+    document.getElementById('btnPause').addEventListener('click', togglePause);
+    document.getElementById('btnPlay').addEventListener('click', startGame);
+    document.getElementById('btnResume').addEventListener('click', togglePause);
+    document.getElementById('btnMenuFromPause').addEventListener('click', showStartMenu);
+    document.getElementById('btnSaveScore').addEventListener('click', submitScore);
+    document.getElementById('btnMenuFromGameOver').addEventListener('click', showStartMenu);
 
     document.addEventListener('keydown', event => {
       if (document.activeElement === document.getElementById('playerNameInput')) return;
